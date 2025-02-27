@@ -9,10 +9,10 @@ And once you’ve figured all that out—how do you even let your guildmate know
 Sure, you could manage all this in-game, but what if some of it could be streamlined through Discord while you're offline?
 
 That’s where this API and Discord bot come in. It bridges the gap between World of Warcraft crafting and guild coordination outside the game, making it easier than ever to:
-✅ Find out who in your guild can craft what you need
-✅ See what reagents are required, including quality tiers
-✅ Ensure your order will succeed with the right materials
-✅ Notify the crafter via Discord so they know an order is incoming
+- Find out who in your guild can craft what you need
+- See what reagents are required, including quality tiers
+- Ensure your order will succeed with the right materials
+- Notify the crafter via Discord so they know an order is incoming
 
 I originally built this for my own guild, but if you’ve got AWS access and a Blizzard developer key, feel free to fork, use, and tweak it however you like!
 The Discord bot code will also be released soon, making it even easier to integrate.

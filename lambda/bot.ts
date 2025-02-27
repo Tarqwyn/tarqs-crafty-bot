@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { getMongoClient } from "./services/database";
 import axios from "axios";
 import * as AWS from "aws-sdk";
 import * as unicodedata from "unorm";
@@ -9,50 +9,9 @@ const DOCUMENTDB_URI = process.env.DOCUMENTDB_CLUSTER_URI || "";
 const BLIZZARD_SECRET_NAME = "BlizzardAPICredentials";
 const GUILD_COLLECTION = "guild_members";
 
-let cachedClient: MongoClient | null = null;
-
 function cleanCharacterName(name: string): string {
     return unicodedata.nfkd(name) 
         .replace(/[^A-Za-z0-9-_+=.@!]/g, ""); 
-}
-
-async function getMongoClient() {
-    console.log("🚀 Testing DocumentDB Connection...");
-
-    if (cachedClient) {
-        console.log("✅ Using cached MongoDB connection");
-        return cachedClient;
-    }
-
-    if (!SECRET_ARN) {
-        throw new Error("❌ Missing Secrets Manager ARN. Ensure DOCUMENTDB_SECRET_ARN is set.");
-    }
-
-    try {
-        console.log("🔍 Fetching credentials from Secrets Manager...");
-        const secretData = await secretsManager.getSecretValue({ SecretId: SECRET_ARN }).promise();
-        const secrets = JSON.parse(secretData.SecretString || "{}");
-
-        const uri = `mongodb://${secrets.host}:27017/?tls=true&replicaSet=rs0&readPreference=secondaryPreferred`;
-        const username = secrets.username;
-        const password = secrets.password;
-
-        console.log("🔌 Connecting to DocumentDB using Secrets Manager...");
-        cachedClient = new MongoClient(uri, {
-            tls: true,
-            tlsAllowInvalidCertificates: true,
-            auth: { username, password },
-            retryWrites: false, 
-        });
-
-        await cachedClient.connect();
-        console.log("✅ Successfully connected to DocumentDB!");
-
-        return cachedClient;
-    } catch (error: unknown) {
-        console.error("❌ Failed to connect to DocumentDB:", (error instanceof Error) ? error.message : error);
-        throw new Error("❌ DocumentDB connection failed");
-    }
 }
 
 async function getBlizzardToken() {
@@ -110,7 +69,7 @@ async function fetchCharacterProfessions(accessToken: string, characterName: str
                     (tier: ProfessionTier) => tier.tier.name.startsWith("Khaz Algar")
                 );
                 
-                if (!khazAlgarTier) return null; 
+                if (!khazAlgarTier) return null;
 
                 return {
                     id: profession.profession.id,
@@ -119,7 +78,7 @@ async function fetchCharacterProfessions(accessToken: string, characterName: str
                     recipes: khazAlgarTier.known_recipes?.map(recipe => recipe.name) ?? [],
                 };
             })
-            .filter((prof): prof is NonNullable<typeof prof> => prof !== null);
+            .filter((prof): prof is NonNullable<typeof prof> => prof !== null); // Remove null values
         
         console.log(`✅ Extracted Khaz Algar Professions for ${characterName}:`, khazAlgarProfessions);
         return khazAlgarProfessions;
@@ -158,7 +117,6 @@ async function fetchCraftersForRecipe(recipeName: string) {
     const db = client.db("CraftingBotDB");
     const collection = db.collection("guild_members");
 
-    // 🔍 Search for characters with this recipe
     const crafters = await collection
         .find({ "khaz_algar_professions.recipes": { $regex: new RegExp(`^${recipeName}$`, "i") } })
         .toArray();
@@ -168,7 +126,6 @@ async function fetchCraftersForRecipe(recipeName: string) {
         return null;
     }
 
-    // ✅ Format response
     return crafters.map(crafter => ({
         character_name: crafter.character_name,
         realm: crafter.realm,
@@ -183,6 +140,7 @@ async function fetchCraftersForRecipe(recipeName: string) {
             }))
     }));
 }
+
 
 async function storeGuildMembersInDB(members: any[], accessToken: string) {
     console.log(`🔍 Attempting to store ${members.length} members in DocumentDB`);
@@ -209,7 +167,7 @@ async function storeGuildMembersInDB(members: any[], accessToken: string) {
             }
 
             characterName = member.character.name.trim();
-            characterRealm = member.character.realm.slug.trim();
+            characterRealm = member.character.realm.slug.trim(); 
 
             console.log(`🔍 Original Character Name: "${characterName}" | Realm: "${characterRealm}"`);
 
