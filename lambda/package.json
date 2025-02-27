@@ -1,0 +1,23 @@
+{
+  "name": "lambda",
+  "version": "1.0.0",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "types": "./bot.d.ts",
+  "description": "",
+  "dependencies": {
+    "aws-sdk": "^2.1692.0",
+    "axios": "^1.7.9",
+    "mongodb": "^6.13.1",
+    "querystring": "^0.2.1",
+    "unorm": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/mongodb": "^4.0.6"
+  }
+}

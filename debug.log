@@ -1,0 +1,9 @@
+Registered stacks: [ 'TarqsCraftyBotStack' ]
+Stack contents: [
+  'TarqsCraftyBotStack/DiscordBotSecrets',
+  'TarqsCraftyBotStack/CraftingData',
+  'TarqsCraftyBotStack/DiscordBotLambda'
+]
+Starting synthesis...
+Synthesis completed!
+ENOENT: no such file or directory, open 'cdk.out/manifest.json'
