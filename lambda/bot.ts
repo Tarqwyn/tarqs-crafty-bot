@@ -1,92 +1,50 @@
 import { getMongoClient } from "./services/database";
-import axios from "axios";
-import * as AWS from "aws-sdk";
-import * as unicodedata from "unorm";
+import { getBlizzardToken } from "./services/blizzard-api";
+import { updateGuildMembers } from "./handlers/update-handler";
+import { initItemCollection, initSpecialismCollection } from "./handlers/item-collection-handler";
+import { cleanCharacterName } from "./services/utils";
 
-const secretsManager = new AWS.SecretsManager();
-const SECRET_ARN = process.env.DOCUMENTDB_SECRET_ARN || "";
-const DOCUMENTDB_URI = process.env.DOCUMENTDB_CLUSTER_URI || "";
-const BLIZZARD_SECRET_NAME = "BlizzardAPICredentials";
-const GUILD_COLLECTION = "guild_members";
 
-function cleanCharacterName(name: string): string {
-    return unicodedata.nfkd(name) 
-        .replace(/[^A-Za-z0-9-_+=.@!]/g, ""); 
+interface Reagent {
+    name: string;
+    quantity: number;
+    itemId?: string; 
 }
 
-async function getBlizzardToken() {
-    const secretData = await secretsManager.getSecretValue({ SecretId: BLIZZARD_SECRET_NAME }).promise();
-    const credentials = JSON.parse(secretData.SecretString || "{}");
-
-    const tokenResponse = await axios.post(
-        "https://oauth.battle.net/token",
-        new URLSearchParams({ grant_type: "client_credentials" }).toString(),
-        { auth: { username: credentials.client_id, password: credentials.client_secret } }
-    );
-
-    return tokenResponse.data.access_token;
+interface ItemDocument {
+    _id: string;
+    name: string;
+    category: string;
+    craftedItemId: string;
+    spellId: number;
+    mediaUrl: string;
+    reagents: Reagent[];
 }
 
-async function fetchGuildRoster(accessToken: string, guildName: string, realm: string) {
-    const response = await axios.get(
-        `https://eu.api.blizzard.com/data/wow/guild/${realm}/${guildName}/roster`,
-        { headers: { Authorization: `Bearer ${accessToken}` }, params: { namespace: "profile-eu" } }
-    );
-
-    return response.data.members;
+interface Profession {
+    name: string;
+    skill_points: number;
+    recipes: string[];
 }
 
-async function fetchCharacterProfessions(accessToken: string, characterName: string, realm: string) {
-    try {
-        const response = await axios.get(
-            `https://eu.api.blizzard.com/profile/wow/character/${realm}/${characterName}/professions`,
-            {
-                headers: { Authorization: `Bearer ${accessToken}` },
-                params: { namespace: "profile-eu" }
-            }
-        );
-
-        console.log(`🔍 Raw Blizzard API Response for ${characterName}:`, JSON.stringify(response.data, null, 2));
-
-        interface ProfessionTier {
-            tier: { name: string };
-            skill_points: number;
-            max_skill_points: number;
-            known_recipes: { name: string }[]; 
-        }
-        
-
-        interface Profession {
-            profession: { id: number; name: string };
-            tiers: ProfessionTier[];
-        }
-
-        const primaryProfessions: Profession[] = response.data.primaries || [];
-
-        const khazAlgarProfessions = primaryProfessions
-            .map((profession: Profession) => {
-                const khazAlgarTier = profession.tiers.find(
-                    (tier: ProfessionTier) => tier.tier.name.startsWith("Khaz Algar")
-                );
-                
-                if (!khazAlgarTier) return null;
-
-                return {
-                    id: profession.profession.id,
-                    name: profession.profession.name,
-                    skill_points: `${khazAlgarTier.skill_points}/${khazAlgarTier.max_skill_points}`,
-                    recipes: khazAlgarTier.known_recipes?.map(recipe => recipe.name) ?? [],
-                };
-            })
-            .filter((prof): prof is NonNullable<typeof prof> => prof !== null); // Remove null values
-        
-        console.log(`✅ Extracted Khaz Algar Professions for ${characterName}:`, khazAlgarProfessions);
-        return khazAlgarProfessions;
-    } catch (error) {
-        console.error(`❌ Failed to fetch professions for ${characterName}:`, (error as Error).message);
-        return [];
-    }
+interface CrafterDocument {
+    _id: string;
+    character_name: string;
+    realm: string;
+    level: number;
+    khaz_algar_professions: Profession[];
 }
+
+interface CraftedItem {
+    category: string;
+    items: string[];
+  }
+
+interface SpecialismDocument {
+    _id: string;  // Ensure _id is treated as a string
+    crafted_items: CraftedItem[];
+    max_points: number;
+  }
 
 async function fetchCharacterFromDB(characterName: string, realm?: string) {
     console.log(`🔍 Searching for character: "${characterName}" (Realm: ${realm || "ANY"})`);
@@ -110,94 +68,237 @@ async function fetchCharacterFromDB(characterName: string, realm?: string) {
     return characters.length === 1 ? characters : characters; 
 }
 
-async function fetchCraftersForRecipe(recipeName: string) {
+async function fetchSpecialismForRecipe(recipeName: string) {
+    console.log(`🔍 Searching for specialism of "${recipeName}"...`);
+
+    const client = await getMongoClient();
+    const db = client.db("CraftingBotDB");
+    const specialismCollection = db.collection<SpecialismDocument>("Specialism");
+
+    // Fetch all specialisms
+    
+    const specialisms = await specialismCollection.find({}).toArray();
+
+    console.log(`🔍 Found ${specialisms.length} specialisms.`);
+    console.log(`📝 Sample specialism document:`, JSON.stringify(specialisms[0], null, 2));
+
+    let foundSpecialism = null;
+    for (const specialism of specialisms) {
+        console.log(`🔎 Checking specialism: ${specialism._id}`);
+
+        if (!Array.isArray(specialism.crafted_items)) {
+            console.error(`❌ specialism.crafted_items is NOT an array for: ${specialism._id}`);
+            continue;
+        }
+
+        for (const category of specialism.crafted_items) {
+            if (category.items.includes(recipeName)) {
+                foundSpecialism = specialism;
+                break;
+            }
+        }
+        if (foundSpecialism) break;
+    }
+
+    if (!foundSpecialism) {
+        console.log(`❌ No matching specialism found for "${recipeName}".`);
+        return null;
+    }
+
+    console.log(`✅ Found Specialism: ${foundSpecialism._id}`);
+    return foundSpecialism;
+}
+
+async function fetchCraftersWithScore(recipeName: string) {
     console.log(`🔍 Searching for crafters of "${recipeName}"...`);
 
     const client = await getMongoClient();
     const db = client.db("CraftingBotDB");
-    const collection = db.collection("guild_members");
 
-    const crafters = await collection
+    // Fetch item details from the Items collection
+    const itemsCollection = db.collection<ItemDocument>("craftable_items");
+    const item = await itemsCollection.findOne({ name: recipeName });
+
+    if (!item) {
+        console.log(`❌ No item found for "${recipeName}".`);
+        return { error: `Item "${recipeName}" not found in the database.` };
+    }
+
+    console.log(`✅ Found item: ${item.name}, Category: ${item.category}`);
+
+    // Try fetching the specialism, but allow fallback
+    const specialism = await fetchSpecialismForRecipe(recipeName);
+    if (!specialism) {
+        console.log(`⚠️ No specialism found for "${recipeName}", falling back to general recipe data.`);
+    } else {
+        console.log(`🔍 Specialisation: ${specialism._id}`);
+    }
+
+    // Fetch crafters from the guild_members collection
+    const craftersCollection = db.collection<CrafterDocument>("guild_members");
+    const crafters = await craftersCollection
         .find({ "khaz_algar_professions.recipes": { $regex: new RegExp(`^${recipeName}$`, "i") } })
         .toArray();
 
     if (!crafters.length) {
         console.log(`❌ No crafters found for "${recipeName}".`);
-        return null;
+        return { error: `No crafters available for "${recipeName}".` };
     }
 
-    return crafters.map(crafter => ({
-        character_name: crafter.character_name,
-        realm: crafter.realm,
-        level: crafter.level,
-        profession: crafter.khaz_algar_professions
-            .filter((prof: { name: string; skill_points: string; recipes: string[] }) =>
-                prof.recipes.includes(recipeName)
-            )
-            .map((prof: { name: string; skill_points: string }) => ({
-                name: prof.name,
-                skill_points: prof.skill_points
-            }))
+    // Fetch full character details using fetchCharacterFromDB
+    const craftersWithScore = await Promise.all(crafters.map(async (crafter) => {
+        const fullCrafterData = await fetchCharacterFromDB(crafter.character_name, crafter.realm);
+        if (!fullCrafterData) return null; // Skip if no data found
+
+        // Ensure we get a single crafter object (not an array)
+        const fullCrafter = Array.isArray(fullCrafterData) ? fullCrafterData[0] : fullCrafterData;
+        if (!fullCrafter || !fullCrafter.khaz_algar_professions) return null;
+
+        let professionSkill = 0;
+        let totalGeneralRecipes = 0;
+        let totalSpecialismRecipes = 0;
+        let hasFullCategory = false;
+        let professionName: string = "Unknown"; // ✅ Default to prevent errors
+        let relevantProfession: { name: string; skill_points: string; recipes: string[] } | null = null;
+
+        // ✅ Define a type for professions
+        type Profession = {
+            name: string;
+            skill_points: string;
+            recipes: string[];
+        };
+
+        // ✅ Ensure `professions` is an array of the expected structure
+        const professions: Profession[] = fullCrafter.khaz_algar_professions.map((prof: any) => ({
+            name: prof.name,
+            skill_points: prof.skill_points || "0/100", // Ensure a default format
+            recipes: prof.recipes || []
+        }));
+
+        professions.forEach((prof) => {
+            if (prof.recipes.includes(recipeName)) { // ✅ Process only the relevant profession
+                relevantProfession = prof as Profession; // ✅ Explicit casting
+                professionName = prof.name; // ✅ Store profession name safely
+
+                professionSkill = parseInt(prof.skill_points.split("/")[0]) || 0; // ✅ Extract numeric skill
+
+                // **2️⃣ Count General Recipes**
+                totalGeneralRecipes += prof.recipes.length;
+
+                // **3️⃣ Specialisation Recipes (ONLY IF SPECIALISM EXISTS)**
+                if (specialism) {
+                    specialism.crafted_items.forEach((category: { category: string; items: string[] }) => {
+                        const totalRecipesInCategory = category.items.length;
+
+                        // Count how many recipes the crafter knows in this category
+                        const knownRecipes = prof.recipes.filter((r: string) => category.items.includes(r)).length;
+                        totalSpecialismRecipes += knownRecipes * 5; // **+5 points per specialism recipe**
+
+                        // If crafter knows ALL recipes in this category, apply bonus
+                        if (knownRecipes === totalRecipesInCategory) {
+                            hasFullCategory = true;
+                        }
+                    });
+                }
+            }
+        });
+
+        if (!relevantProfession) return null; // ✅ Skip if no relevant profession found
+
+        // **4️⃣ Full Completion Bonus (Only if Specialism exists)**
+        const completionBonus = specialism && hasFullCategory ? 10 : 0;
+
+        // **Final Score Calculation (Now Works Even Without Specialism)**
+        const finalScore =
+            professionSkill + // **+1 per skill point**
+            totalGeneralRecipes + // **+1 per general recipe**
+            totalSpecialismRecipes + // **+5 per specialism recipe (if exists)**
+            completionBonus; // **+10 if all recipes in specialism known (if exists)**
+
+        console.log(
+            `🛠️ Crafter: ${crafter.character_name}, Profession: ${professionName}, Skill: ${professionSkill}, ` +
+            `General Recipes: ${totalGeneralRecipes}, ` +
+            `Specialism Recipes: ${totalSpecialismRecipes / 5}, ` + // Convert back to recipe count
+            `Full Bonus: ${completionBonus}, Final Score: ${finalScore}`
+        );
+
+        return {
+            character_name: crafter.character_name,
+            realm: crafter.realm,
+            level: crafter.level,
+            profession: [{ name: professionName }], // ✅ Use extracted profession name
+            skill_points: professionSkill,
+            general_recipes: totalGeneralRecipes,
+            specialism_recipes: totalSpecialismRecipes / 5, // Convert back to recipe count
+            full_bonus: completionBonus,
+            final_score: finalScore
+        };
     }));
+
+    // Remove null results (characters who weren’t found or had no relevant profession)
+    return craftersWithScore.filter(Boolean);
 }
 
 
-async function storeGuildMembersInDB(members: any[], accessToken: string) {
-    console.log(`🔍 Attempting to store ${members.length} members in DocumentDB`);
+async function fetchCraftersForRecipe(recipeName: string) {
+    console.log(`🔍 Searching for crafters of "${recipeName}"...`);
 
     const client = await getMongoClient();
-    console.log("✅ Connected to DocumentDB");
-
     const db = client.db("CraftingBotDB");
-    const collection = db.collection(GUILD_COLLECTION);
 
-    if (!Array.isArray(members) || members.length === 0) {
-        console.error("❌ Error: No members to process!");
+    // Fetch item details from the Items collection
+    const itemsCollection = db.collection<ItemDocument>("craftable_items");
+    const item = await itemsCollection.findOne({ name: recipeName });
+    const items = await itemsCollection.find({}, { projection: { _id: 0, name: 1 } }).toArray();
+
+    if (!items.length) {
+        console.log("❌ No items found in the database.");
         return;
     }
 
-    for (const member of members) {
-        let characterName = "";
-        let characterRealm = "";
-
-        try {
-            if (!member.character || !member.character.name || !member.character.realm) {
-                console.error("❌ Skipping entry - Invalid member format:", JSON.stringify(member));
-                continue;
-            }
-
-            characterName = member.character.name.trim();
-            characterRealm = member.character.realm.slug.trim(); 
-
-            console.log(`🔍 Original Character Name: "${characterName}" | Realm: "${characterRealm}"`);
-
-            characterName = cleanCharacterName(characterName.toLowerCase());
-            characterRealm = characterRealm.toLowerCase();
-            const characterKey = `${characterName}#${characterRealm}`;
-
-            console.log(`📝 Attempting to insert/update: ${characterKey}`);
-
-            const professions = await fetchCharacterProfessions(accessToken, characterName, characterRealm);
-
-            await collection.updateOne(
-                { character_realm: characterKey },
-                {
-                    $set: {
-                        character_name: characterName,
-                        realm: characterRealm, 
-                        level: member.character.level || 0,
-                        khaz_algar_professions: professions 
-                    }
-                },
-                { upsert: true, retryWrites: false }
-            );
-
-            console.log(`✅ Successfully inserted/updated ${characterKey}`);
-        } catch (error: unknown) {
-            console.error(`❌ Failed to insert ${characterName}:`, (error as Error).message);
-        }
+    console.log(`✅ Items: (${items.length})`);
+    if (!item) {
+        console.log(`❌ No item found for "${recipeName}".`);
+        return { error: `Item "${recipeName}" not found in the database.` };
     }
-    console.log("✅ Finished processing all guild members.");
+
+    // ✅ Use fetchCraftersWithScore instead of separate DB query
+    const craftersWithScore = await fetchCraftersWithScore(recipeName);
+
+    // ✅ Ensure we only process valid data
+    if (!Array.isArray(craftersWithScore)) {
+        console.log(`❌ Error fetching crafters: ${craftersWithScore.error}`);
+        return craftersWithScore; // Return the error object
+    }
+
+    if (!craftersWithScore.length) {
+        console.log(`❌ No crafters found for "${recipeName}".`);
+    }
+
+    // ✅ Filter out null values before mapping
+    const validCrafters = craftersWithScore.filter((crafter): crafter is NonNullable<typeof crafter> => crafter !== null);
+
+    // ✅ Format response using only the first profession found
+    return {
+        name: item.name,
+        category: item.category,
+        mediaUrl: item.mediaUrl,
+        reagents: item.reagents || [],
+        crafters: validCrafters.map((crafter) => {
+            // ✅ Use the first profession in the array (since we no longer store recipes in `profession`)
+            const relevantProfession = crafter.profession.length > 0 ? crafter.profession[0] : null;
+
+            return {
+                character_name: crafter.character_name,
+                realm: crafter.realm,
+                level: crafter.level,
+                profession: relevantProfession ? { 
+                    name: relevantProfession.name,
+                    final_score: crafter.final_score // ✅ Use final_score instead of skill_points
+                } : null // If no relevant profession is found, return null
+            };
+        }).filter((crafter) => crafter.profession !== null) // Remove crafters without a valid profession
+    };
 }
 
 export async function lambdaHandler(event: any) {
@@ -220,7 +321,7 @@ export async function lambdaHandler(event: any) {
                 return { statusCode: 404, body: JSON.stringify({ message: "No crafters found for this recipe." }) };
             }
 
-            console.log(`✅ Found ${crafters.length} crafters.`);
+            console.log(`✅ Found crafters.`);
             return {
                 statusCode: 200,
                 body: JSON.stringify({ recipe: recipeName, crafters }, null, 2),
@@ -282,23 +383,37 @@ export async function lambdaHandler(event: any) {
         }
     }
 
-    if (!isApiGatewayEvent && event.action === "updateDatabase") {
-        console.log("🔄 Updating Database with Guild Members...");
+    if (!isApiGatewayEvent && event.action === "updateGuild") {
         try {
             const accessToken = await getBlizzardToken();
-            const guildName = "the-asylum";
-            const realm = "quelthalas";
+            console.log("🔄 Updating Database with Guild Members crafting data...");
+            await updateGuildMembers("the-asylum", "quelthalas", accessToken);
+            return { statusCode: 200, body: JSON.stringify({ message: "Guild members updated!" }) };
+        } catch (error: any) {
+            console.error("❌ Error in Lambda execution:", error.message);
+            return { statusCode: 500, body: JSON.stringify({ error: "Failed to process request" }) };
+        }
+    }
 
-            console.log("✅ Fetching guild members from Blizzard API...");
-            const members = await fetchGuildRoster(accessToken, guildName, realm);
-
-            console.log(`✅ Storing ${members.length} members in DocumentDB...`);
-            await storeGuildMembersInDB(members, accessToken);
-
-            return { statusCode: 200, body: JSON.stringify({ message: "Guild members updated in DocumentDB!" }) };
-        } catch (error: unknown) {
-            console.error("❌ Failed to update guild members:", (error as Error).message);
-            return { statusCode: 500, body: JSON.stringify({ error: "Failed to update database" }) };
+    if (!isApiGatewayEvent && event.action === "initItemCollection") {
+        try {
+            const accessToken = await getBlizzardToken();
+            console.log("🔄 Initializing item collection...");
+            
+            const collection = await initItemCollection();
+            const specialism = await initSpecialismCollection();
+    
+            return {
+                statusCode: 200,
+                body: JSON.stringify({
+                    message: "Item & Specialism collections initialized!",
+                    totalRecipes: collection.total,
+                    specialisms: specialism.total,
+                }),
+            };
+        } catch (error: any) {
+            console.error("❌ Error loading item collection:", error.message);
+            return { statusCode: 500, body: JSON.stringify({ error: "Failed to load item collection" }) };
         }
     }
 

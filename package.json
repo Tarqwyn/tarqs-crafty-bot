@@ -29,7 +29,8 @@
     "axios": "^1.7.9",
     "constructs": "^10.4.2",
     "discord.js": "^14.18.0",
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "node-fetch": "^3.3.2"
   },
   "description": "This is a blank project for CDK development with TypeScript.",
   "main": "jest.config.js",

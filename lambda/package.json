@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "main": "bot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm run build && cdk deploy",
+    "update-data": "aws lambda invoke --function-name DiscordBotLambda --cli-binary-format raw-in-base64-out --payload '{\"action\": \"updateGuild\"}'"
   },
   "keywords": [],
   "author": "",
@@ -13,7 +15,9 @@
   "dependencies": {
     "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",
+    "fs": "^0.0.1-security",
     "mongodb": "^6.13.1",
+    "path": "^0.12.7",
     "querystring": "^0.2.1",
     "unorm": "^1.6.0"
   },

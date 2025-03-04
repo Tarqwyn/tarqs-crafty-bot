@@ -5,6 +5,7 @@ const secretsManager = new AWS.SecretsManager();
 const SECRET_ARN = process.env.DOCUMENTDB_SECRET_ARN || "";
 
 let cachedClient: MongoClient | null = null;
+let cachedSecrets: any = null;
 
 export async function getMongoClient(): Promise<MongoClient> {
     if (cachedClient) {
@@ -12,18 +13,21 @@ export async function getMongoClient(): Promise<MongoClient> {
         return cachedClient;
     }
 
+    if (!cachedSecrets) {
+        console.log("🔍 Fetching credentials from Secrets Manager...");
+        const secretData = await secretsManager.getSecretValue({ SecretId: SECRET_ARN }).promise();
+        cachedSecrets = JSON.parse(secretData.SecretString || "{}");
+        console.log("✅ Cached Secrets Manager response.");
+    }
+
     if (!SECRET_ARN) {
         throw new Error("❌ Missing Secrets Manager ARN. Ensure DOCUMENTDB_SECRET_ARN is set.");
     }
-
+    
     try {
-        console.log("🔍 Fetching credentials from Secrets Manager...");
-        const secretData = await secretsManager.getSecretValue({ SecretId: SECRET_ARN }).promise();
-        const secrets = JSON.parse(secretData.SecretString || "{}");
-
-        const uri = `mongodb://${secrets.host}:27017/?tls=true&replicaSet=rs0&readPreference=secondaryPreferred`;
-        const username = secrets.username;
-        const password = secrets.password;
+        const uri = `mongodb://${cachedSecrets.host}:27017/?tls=true&replicaSet=rs0&readPreference=secondaryPreferred`;
+        const username = cachedSecrets.username;
+        const password = cachedSecrets.password;
 
         console.log("🔌 Connecting to DocumentDB using Secrets Manager...");
         cachedClient = new MongoClient(uri, {
