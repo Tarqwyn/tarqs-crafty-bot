@@ -12,8 +12,15 @@ let cachedSecrets: MongoDBSecrets | null = null;
 
 export async function getMongoClient(): Promise<MongoClient> {
   if (cachedClient) {
-    console.log("✅ Using cached MongoDB connection");
-    return cachedClient;
+    try {
+      // 🛠️ Validate existing connection
+      await cachedClient.db().admin().ping();
+      console.log("✅ Cached MongoDB connection is still valid.");
+      return cachedClient;
+    } catch (error) {
+      console.warn("⚠️ Cached connection is stale. Reconnecting...", error);
+      cachedClient = null; // Reset cached client
+    }
   }
 
   if (!cachedSecrets) {

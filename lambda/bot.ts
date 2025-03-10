@@ -5,6 +5,7 @@ import {
   initItemCollection,
   initSpecialismCollection,
 } from "./handlers/item-collection-handler";
+import ensureIndexes from "./scripts/ensureIndexes";
 import { handleApiGateway } from "./handlers/api-gateway";
 
 const actions = {
@@ -28,6 +29,14 @@ const actions = {
         totalRecipes: collection.total,
         specialisms: specialism.total,
       }),
+    };
+  },
+  ensureIndexes: async () => {
+    console.log("📌 Ensuring indexes exist...");
+    await ensureIndexes();
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: "Indexes ensured!" }),
     };
   },
 } as const;

@@ -22,13 +22,16 @@ deploy:
 	cdk deploy --require-approval never
 
 # Basic POST Requests
-.PHONY: updateGuild initItemCollection
+.PHONY: updateGuild initItemCollection ensureIndexes
 
 updateGuild:
 	@curl -s -XPOST "$(API_URL)" -d '{"action":"updateGuild"}'
 
 initItemCollection:
 	@curl -s -XPOST "$(API_URL)" -d '{"action":"initItemCollection"}'
+	
+ensureIndexes:
+	@curl -s -XPOST "$(API_URL)" -d '{"action":"ensureIndexes"}'
 
 # Query Who Can Craft a Recipe
 .PHONY: who profession realm
