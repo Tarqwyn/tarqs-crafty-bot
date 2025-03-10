@@ -1,321 +1,311 @@
 {
-    "Blacksmithing": {
-      "Weaponsmithing": {
-        "crafted_items": [
-          {
-            "category": "One-Handed Weapons",
-            "items": [
-              "Everforged Warglaive",
-              "Everforged Longsword",
-              "Everforged Mace",
-              "Charged Hexsword",
-              "Charged Facesmasher",
-              "Charged Runeaxe",
-              "Charged Slicer"
-            ]
-          },
-          {
-            "category": "Two-Handed Weapons",
-            "items": [
-              "Everforged Greataxe",
-              "Charged Halberd",
-              "Charged Claymore",
-              "Charged Crusher",
-              "Charged Invoker"
-            ]
-          },
-          {
-            "category": "Daggers",
-            "items": [
-              "Everforged Dagger",
-              "Everforged Stabber"
-            ]
-          }
-        ],
-        "max_points": 30
-      },
-      "Armorsmithing": {
-        "crafted_items": [
-          {
-            "category": "Plate Armor",
-            "items": [
-              "Everforged Breastplate",
-              "Everforged Legplates",
-              "Everforged Helm",
-              "Everforged Pauldrons",
-              "Everforged Sabatons",
-              "Everforged Greatbelt",
-              "Everforged Vambraces",
-              "Everforged Gauntlets"
-            ]
-          },
-          {
-            "category": "Shields",
-            "items": [
-              "Everforged Defender"
-            ]
-          }
-        ],
-        "max_points": 30
-      }
+  "Blacksmithing": {
+    "Weaponsmithing": {
+      "crafted_items": [
+        {
+          "category": "One-Handed Weapons",
+          "items": [
+            "Everforged Warglaive",
+            "Everforged Longsword",
+            "Everforged Mace",
+            "Charged Hexsword",
+            "Charged Facesmasher",
+            "Charged Runeaxe",
+            "Charged Slicer"
+          ]
+        },
+        {
+          "category": "Two-Handed Weapons",
+          "items": [
+            "Everforged Greataxe",
+            "Charged Halberd",
+            "Charged Claymore",
+            "Charged Crusher",
+            "Charged Invoker"
+          ]
+        },
+        {
+          "category": "Daggers",
+          "items": ["Everforged Dagger", "Everforged Stabber"]
+        }
+      ],
+      "max_points": 30
     },
-    "Enchanting": {
-      "Everlasting Enchantments": {
-        "crafted_items": [
-          {
-            "category": "Weapon Enchants",
-            "items": [
-              "Authority of Radiant Power",
-              "Stormrider's Fury",
-              "Council's Guile",
-              "Oathsworn's Tenacity"
-            ]
-          },
-          {
-            "category": "Armor Enchants",
-            "items": [
-              "Council's Intellect",
-              "Crystalline Radiance",
-              "Oathsworn's Strength",
-              "Stormrider's Agility",
-              "Algari Deftness",
-              "Algari Finesse",
-              "Algari Ingenuity",
-              "Algari Perception",
-              "Algari Resourcefulness"
-            ]
-          }
-        ],
-        "max_points": 30
-      },
-      "Ephemerals, Enrichments, and Equipment": {
-        "crafted_items": [
-          {
-            "category": "Wands",
-            "items": [
-              "Scepter of Radiant Magics"
-            ]
-          },
-          {
-            "category": "Magical Equipment",
-            "items": [
-              "Runed Ironclaw Rod",
-              "Runed Null Stone Rod"
-            ]
-          }
-        ],
-        "max_points": 30
-      }
+    "Armorsmithing": {
+      "crafted_items": [
+        {
+          "category": "Plate Armor",
+          "items": [
+            "Everforged Breastplate",
+            "Everforged Legplates",
+            "Everforged Helm",
+            "Everforged Pauldrons",
+            "Everforged Sabatons",
+            "Everforged Greatbelt",
+            "Everforged Vambraces",
+            "Everforged Gauntlets"
+          ]
+        },
+        {
+          "category": "Shields",
+          "items": ["Everforged Defender"]
+        }
+      ],
+      "max_points": 30
+    }
+  },
+  "Enchanting": {
+    "Everlasting Enchantments": {
+      "crafted_items": [
+        {
+          "category": "Weapon Enchants",
+          "items": [
+            "Authority of Radiant Power",
+            "Stormrider's Fury",
+            "Council's Guile",
+            "Oathsworn's Tenacity"
+          ]
+        },
+        {
+          "category": "Armor Enchants",
+          "items": [
+            "Council's Intellect",
+            "Crystalline Radiance",
+            "Oathsworn's Strength",
+            "Stormrider's Agility",
+            "Algari Deftness",
+            "Algari Finesse",
+            "Algari Ingenuity",
+            "Algari Perception",
+            "Algari Resourcefulness"
+          ]
+        }
+      ],
+      "max_points": 30
     },
-    "Inscription": {
-      "Careful Carvings": {
-        "crafted_items": [
-          {
-            "category": "Runes",
-            "items": [
-              "Vagabond's Bounding Baton",
-              "Vagabond's Careful Crutch",
-              "Vagabond's Torch"
-            ]
-          }
-        ],
-        "max_points": 30
-      },
-      "Archival Additions": {
-        "crafted_items": [
-          {
-            "category": "Tomes",
-            "items": [
-              "Darkmoon Deck: Ascension",
-              "Darkmoon Deck: Dominion",
-              "Darkmoon Deck: Inferno",
-              "Darkmoon Deck: Repose",
-              "Contract: The Severed Threads",
-              "Contract: The Cartels of Undermine",
-              "Contract: Hallowfall Arathi",
-              "Contract: Council of Dornogal",
-              "Contract: Assembly of the Deeps"
-            ]
-          },
-          {
-            "category": "Scrolls",
-            "items": [
-              "Algari Missive of the Fireflash",
-              "Algari Missive of the Peerless",
-              "Algari Missive of the Quickblade",
-              "Algari Missive of the Harmonious",
-              "Algari Missive of the Aurora",
-              "Algari Missive of the Feverflare"
-            ]
-          }
-        ],
-        "max_points": 30
-      }
+    "Ephemerals, Enrichments, and Equipment": {
+      "crafted_items": [
+        {
+          "category": "Wands",
+          "items": ["Scepter of Radiant Magics"]
+        },
+        {
+          "category": "Magical Equipment",
+          "items": ["Runed Ironclaw Rod", "Runed Null Stone Rod"]
+        }
+      ],
+      "max_points": 30
+    }
+  },
+  "Inscription": {
+    "Careful Carvings": {
+      "crafted_items": [
+        {
+          "category": "Runes",
+          "items": [
+            "Vagabond's Bounding Baton",
+            "Vagabond's Careful Crutch",
+            "Vagabond's Torch"
+          ]
+        }
+      ],
+      "max_points": 30
     },
-    "Jewelcrafting": {
-      "Gemcutting": {
-        "crafted_items": [
-          {
-            "category": "Gems",
-            "items": [
-              "Masterful Amber",
-              "Quick Amber",
-              "Versatile Amber",
-              "Solid Amber",
-              "Deadly Amber",
-              "Deadly Emerald",
-              "Masterful Emerald",
-              "Versatile Emerald",
-              "Quick Emerald",
-              "Deadly Onyx",
-              "Quick Onyx",
-              "Versatile Onyx",
-              "Masterful Onyx",
-              "Masterful Ruby",
-              "Quick Ruby"
-            ]
-          }
-        ],
-        "max_points": 30
-      },
-      "Jewelrycrafting": {
-        "crafted_items": [
-          {
-            "category": "Rings",
-            "items": [
-              "Binding of Binding",
-              "Loop of Binding",
-              "Signet of Binding",
-              "Ring-Bound Band"
-            ]
-          },
-          {
-            "category": "Necklaces",
-            "items": [
-              "Fractured Gemstone Locket",
-              "Gem-Cracked Choker",
-              "Jeweled Amulet",
-              "Necklace of the Deep"
-            ]
-          },
-          {
-            "category": "Trinkets",
-            "items": [
-              "Prismatic Null Stone",
-              "Elemental Focusing Lens",
-              "Captured Starlight"
-            ]
-          }
-        ],
-        "max_points": 30
-      }
+    "Archival Additions": {
+      "crafted_items": [
+        {
+          "category": "Tomes",
+          "items": [
+            "Darkmoon Deck: Ascension",
+            "Darkmoon Deck: Dominion",
+            "Darkmoon Deck: Inferno",
+            "Darkmoon Deck: Repose",
+            "Contract: The Severed Threads",
+            "Contract: The Cartels of Undermine",
+            "Contract: Hallowfall Arathi",
+            "Contract: Council of Dornogal",
+            "Contract: Assembly of the Deeps"
+          ]
+        },
+        {
+          "category": "Scrolls",
+          "items": [
+            "Algari Missive of the Fireflash",
+            "Algari Missive of the Peerless",
+            "Algari Missive of the Quickblade",
+            "Algari Missive of the Harmonious",
+            "Algari Missive of the Aurora",
+            "Algari Missive of the Feverflare"
+          ]
+        }
+      ],
+      "max_points": 30
+    }
+  },
+  "Jewelcrafting": {
+    "Gemcutting": {
+      "crafted_items": [
+        {
+          "category": "Gems",
+          "items": [
+            "Masterful Amber",
+            "Quick Amber",
+            "Versatile Amber",
+            "Solid Amber",
+            "Deadly Amber",
+            "Deadly Emerald",
+            "Masterful Emerald",
+            "Versatile Emerald",
+            "Quick Emerald",
+            "Deadly Onyx",
+            "Quick Onyx",
+            "Versatile Onyx",
+            "Masterful Onyx",
+            "Masterful Ruby",
+            "Quick Ruby"
+          ]
+        }
+      ],
+      "max_points": 30
     },
-    "Leatherworking": {
-      "Luxurious Leathers": {
-        "crafted_items": [
-          {
-            "category": "Leather Armor",
-            "items": [
-              "Rune-Branded Hood",
-              "Rune-Branded Mantle",
-              "Rune-Branded Tunic",
-              "Rune-Branded Armbands",
-              "Rune-Branded Grasps",
-              "Rune-Branded Waistband",
-              "Rune-Branded Legwraps",
-              "Rune-Branded Kickers"
-            ]
-          }
-        ],
-        "max_points": 30
-      },
-      "Concrete Chitin": {
-        "crafted_items": [
-          {
-            "category": "Mail Armor",
-            "items": [
-              "Glyph-Etched Guise",
-              "Glyph-Etched Epaulets",
-              "Glyph-Etched Breastplate",
-              "Glyph-Etched Vambraces",
-              "Glyph-Etched Gauntlets",
-              "Glyph-Etched Binding",
-              "Glyph-Etched Cuisses",
-              "Glyph-Etched Stompers"
-            ]
-          }
-        ],
-        "max_points": 30
-      },
-      "Flawless Fortes": {
-        "crafted_items": [
-          {
-            "category": "Leg Enchants",
-            "items": [
-              "Stormbound Armor Kit",
-              "Frostbound Armor Kit",
-              "Emberbound Armor Kit",
-              "Earthbound Armor Kit"
-            ]
-          },
-          {
-            "category": "Embellishments",
-            "items": [
-              "Adrenal Surge Clasp",
-              "Roiling Thunderstrike Talons",
-              "Waders of the Unifying Flame",
-              "Rook Feather Wristwraps",
-              "Vambraces of Deepening Darkness"
-            ]
-          },
-          {
-            "category": "Profession Equipment",
-            "items": [
-              "Nerubian Alchemist's Hat",
-              "Earthen Forgemaster's Apron",
-              "Storm-Touched Weapon Wrap"
-            ]
-          }
-        ],
-        "max_points": 30
-      }
+    "Jewelrycrafting": {
+      "crafted_items": [
+        {
+          "category": "Rings",
+          "items": [
+            "Binding of Binding",
+            "Loop of Binding",
+            "Signet of Binding",
+            "Ring-Bound Band"
+          ]
+        },
+        {
+          "category": "Necklaces",
+          "items": [
+            "Fractured Gemstone Locket",
+            "Gem-Cracked Choker",
+            "Jeweled Amulet",
+            "Necklace of the Deep"
+          ]
+        },
+        {
+          "category": "Trinkets",
+          "items": [
+            "Prismatic Null Stone",
+            "Elemental Focusing Lens",
+            "Captured Starlight"
+          ]
+        }
+      ],
+      "max_points": 30
+    }
+  },
+  "Leatherworking": {
+    "Luxurious Leathers": {
+      "crafted_items": [
+        {
+          "category": "Leather Armor",
+          "items": [
+            "Rune-Branded Hood",
+            "Rune-Branded Mantle",
+            "Rune-Branded Tunic",
+            "Rune-Branded Armbands",
+            "Rune-Branded Grasps",
+            "Rune-Branded Waistband",
+            "Rune-Branded Legwraps",
+            "Rune-Branded Kickers"
+          ]
+        }
+      ],
+      "max_points": 30
     },
-    "Tailoring": {
-      "Threads of Devotion": {
-        "crafted_items": [
-          {
-            "category": "Magical Cloth Armor",
-            "items": [
-              "Warm Sunrise Bracers",
-              "Grips of the Woven Dawn",
-              "Treads of the Woven Dawn",
-              "Cool Sunset Bracers",
-              "Gloves of the Woven Dusk",
-              "Slippers of the Woven Dusk"
-            ]
-          }
-        ],
-        "max_points": 30
-      },
-      "From Dawn Until Dusk": {
-        "crafted_items": [
-          {
-            "category": "Time-Adaptive Cloth Items",
-            "items": [
-              "Dawnweave Bolt",
-              "Duskweave Bolt",
-              "Duskweave Bag",
-              "Dawnweave Reagent Bag",
-              "Warm Sunrise Bracers",
-              "Grips of the Woven Dawn",
-              "Treads of the Woven Dawn",
-              "Cool Sunset Bracers",
-              "Gloves of the Woven Dusk",
-              "Slippers of the Woven Dusk"
-            ]
-          }
-        ],
-        "max_points": 30
-      }
+    "Concrete Chitin": {
+      "crafted_items": [
+        {
+          "category": "Mail Armor",
+          "items": [
+            "Glyph-Etched Guise",
+            "Glyph-Etched Epaulets",
+            "Glyph-Etched Breastplate",
+            "Glyph-Etched Vambraces",
+            "Glyph-Etched Gauntlets",
+            "Glyph-Etched Binding",
+            "Glyph-Etched Cuisses",
+            "Glyph-Etched Stompers"
+          ]
+        }
+      ],
+      "max_points": 30
+    },
+    "Flawless Fortes": {
+      "crafted_items": [
+        {
+          "category": "Leg Enchants",
+          "items": [
+            "Stormbound Armor Kit",
+            "Frostbound Armor Kit",
+            "Emberbound Armor Kit",
+            "Earthbound Armor Kit"
+          ]
+        },
+        {
+          "category": "Embellishments",
+          "items": [
+            "Adrenal Surge Clasp",
+            "Roiling Thunderstrike Talons",
+            "Waders of the Unifying Flame",
+            "Rook Feather Wristwraps",
+            "Vambraces of Deepening Darkness"
+          ]
+        },
+        {
+          "category": "Profession Equipment",
+          "items": [
+            "Nerubian Alchemist's Hat",
+            "Earthen Forgemaster's Apron",
+            "Storm-Touched Weapon Wrap"
+          ]
+        }
+      ],
+      "max_points": 30
+    }
+  },
+  "Tailoring": {
+    "Threads of Devotion": {
+      "crafted_items": [
+        {
+          "category": "Magical Cloth Armor",
+          "items": [
+            "Warm Sunrise Bracers",
+            "Grips of the Woven Dawn",
+            "Treads of the Woven Dawn",
+            "Cool Sunset Bracers",
+            "Gloves of the Woven Dusk",
+            "Slippers of the Woven Dusk"
+          ]
+        }
+      ],
+      "max_points": 30
+    },
+    "From Dawn Until Dusk": {
+      "crafted_items": [
+        {
+          "category": "Time-Adaptive Cloth Items",
+          "items": [
+            "Dawnweave Bolt",
+            "Duskweave Bolt",
+            "Duskweave Bag",
+            "Dawnweave Reagent Bag",
+            "Warm Sunrise Bracers",
+            "Grips of the Woven Dawn",
+            "Treads of the Woven Dawn",
+            "Cool Sunset Bracers",
+            "Gloves of the Woven Dusk",
+            "Slippers of the Woven Dusk"
+          ]
+        }
+      ],
+      "max_points": 30
     }
   }
+}
