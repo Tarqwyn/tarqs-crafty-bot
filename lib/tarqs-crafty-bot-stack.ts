@@ -14,7 +14,7 @@ export class TarqsCraftyBotStack extends cdk.Stack {
     // VPCs for the the bot and it data
     const vpc = new ec2.Vpc(this, "CraftingBotVPC", {
       maxAzs: 2,
-      natGateways: 1,
+      natGateways: 0,
       subnetConfiguration: [
         {
           cidrMask: 24,
@@ -67,6 +67,16 @@ export class TarqsCraftyBotStack extends cdk.Stack {
       },
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _secretsManagerEndpoint = vpc.addInterfaceEndpoint(
+      "SecretsManagerVPCEndpoint",
+      {
+        service: ec2.InterfaceVpcEndpointAwsService.SECRETS_MANAGER,
+        subnets: { subnetType: ec2.SubnetType.PUBLIC }, // Attach to the public subnet where Lambda runs
+        securityGroups: [lambdaSecurityGroup],
+      },
+    );
+
     const botLambda = new lambda.Function(this, "DiscordBotLambda", {
       functionName: "DiscordBotLambda",
       runtime: lambda.Runtime.NODEJS_18_X,
@@ -79,8 +89,10 @@ export class TarqsCraftyBotStack extends cdk.Stack {
       }),
       timeout: cdk.Duration.seconds(120),
       vpc,
-      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+      vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
       securityGroups: [lambdaSecurityGroup],
+      allowPublicSubnet: true,
+      reservedConcurrentExecutions: 1,
     });
 
     // Lets the two of them chat if they want

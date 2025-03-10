@@ -76,9 +76,7 @@ async function fetchCraftersWithScore(recipeName: string) {
   const craftersCollection = db.collection<CrafterDocument>("guild_members");
   const crafters = await craftersCollection
     .find({
-      "khaz_algar_professions.recipes": {
-        $regex: new RegExp(`^${recipeName}$`, "i"),
-      },
+      "khaz_algar_professions.recipes": recipeName,
     })
     .toArray();
 
