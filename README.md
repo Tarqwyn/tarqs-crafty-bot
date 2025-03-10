@@ -78,7 +78,7 @@ Built using **AWS CDK (TypeScript)** for infrastructure and **Node.js (TypeScrip
     ├── fetch_khaz_algar_recipes.mjs  # Regenerate khaz_algar_recipes.json
     └── mocks
         └── secrets-manager
-
+````
 ## Deployment Guide
 
 ### 1️⃣ Prerequisites
