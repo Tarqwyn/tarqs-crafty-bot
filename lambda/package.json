@@ -1,9 +1,11 @@
 {
   "name": "lambda",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "main": "bot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm run build && cdk deploy",
+    "start": "npx nodemon -L --exec node -r source-map-support/register bot.js"
   },
   "keywords": [],
   "author": "",
@@ -11,13 +13,19 @@
   "types": "./bot.d.ts",
   "description": "",
   "dependencies": {
+    "aws-lambda": "^1.0.7",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",
+    "fs": "^0.0.1-security",
     "mongodb": "^6.13.1",
+    "path": "^0.12.7",
     "querystring": "^0.2.1",
     "unorm": "^1.6.0"
   },
   "devDependencies": {
-    "@types/mongodb": "^4.0.6"
+    "@types/aws-lambda": "^8.10.147",
+    "@types/mongodb": "^4.0.6",
+    "nodemon": "^3.1.9",
+    "source-map-support": "^0.5.21"
   }
 }

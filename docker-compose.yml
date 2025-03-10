@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - backend
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=craftingbotuser
+      - MONGO_INITDB_ROOT_PASSWORD=testpassword
+    volumes:
+      - mongo-data:/data/db
+
+  lambda:
+    image: amazon/aws-lambda-nodejs:18
+    container_name: lambda
+    environment:
+      - AWS_REGION=eu-west-1
+      - AWS_SECRETS_MANAGER_ENDPOINT=http://secrets-manager:5000
+      - DOCUMENTDB_SECRET_ARN=DocumentDBCredentials
+      - DB_SSL=false
+      - NODE_ENV=local
+    networks:
+      - backend
+    volumes:
+      - ./lambda:/var/task
+    working_dir: /var/task
+    command: ["bot.lambdaHandler"]
+    ports:
+      - "9000:8080"
+    restart: unless-stopped
+
+  secrets-manager:
+    image: node:18
+    container_name: secrets-manager
+    working_dir: /app
+    volumes:
+      - ./utils/mocks/secrets-manager:/app
+    command: ["node", "server.js"]
+    ports:
+      - "5000:5000"
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  mongo-data:
