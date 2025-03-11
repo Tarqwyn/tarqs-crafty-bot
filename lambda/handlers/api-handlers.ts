@@ -1,10 +1,36 @@
 import { getMongoClient } from "../services/database";
+import { Db } from "mongodb";
 import {
   ItemDocument,
   SpecialismDocument,
   CrafterDocument,
   Profession,
 } from "../types/types";
+import levenshtein from "fast-levenshtein";
+
+async function fuzzySearch(db: Db, searchQuery: string) {
+  const collection = db.collection("craftable_items");
+
+  const items = await collection
+    .find<{ name: string }>({}, { projection: { name: 1 } })
+    .toArray();
+
+  if (!items.length) return null;
+
+  const rankedResults = items
+    .map((item) => ({
+      name: item.name,
+      score: levenshtein.get(
+        item.name.toLowerCase(),
+        searchQuery.toLowerCase(),
+      ),
+    }))
+    .sort((a, b) => a.score - b.score);
+
+  const bestMatch = rankedResults[0];
+
+  return bestMatch && bestMatch.score <= 5 ? bestMatch.name : null;
+}
 
 export async function fetchSpecialismForRecipe(recipeName: string) {
   console.log(`🔍 Searching for specialism of "${recipeName}"...`);
@@ -191,30 +217,40 @@ async function fetchCraftersWithScore(recipeName: string) {
 
 export async function fetchCraftersForRecipe(recipeName: string) {
   console.log(`🔍 Searching for crafters of "${recipeName}"...`);
-
   const client = await getMongoClient();
   const db = client.db("CraftingBotDB");
 
   // Fetch item details from the Items collection
   const itemsCollection = db.collection<ItemDocument>("craftable_items");
-  const item = await itemsCollection.findOne({ name: recipeName });
-  const items = await itemsCollection
-    .find({}, { projection: { _id: 0, name: 1 } })
-    .toArray();
 
-  if (!items.length) {
-    console.log("❌ No items found in the database.");
-    return;
+  let item = await itemsCollection.findOne({ name: recipeName });
+
+  // If exact match is not found, run fuzzy search
+  if (!item) {
+    console.log(
+      `❌ No exact match found for "${recipeName}", trying fuzzy search...`,
+    );
+
+    const fuzzyMatch = await fuzzySearch(
+      client.db("CraftingBotDB"),
+      recipeName,
+    );
+
+    if (fuzzyMatch) {
+      console.log(`✅ Best fuzzy match: "${fuzzyMatch}"`);
+      item = await itemsCollection.findOne({ name: fuzzyMatch });
+    } else {
+      console.log(`❌ No close fuzzy matches found for "${recipeName}".`);
+      return { error: `Item "${recipeName}" not found in the database.` };
+    }
   }
 
-  console.log(`✅ Items: (${items.length})`);
   if (!item) {
-    console.log(`❌ No item found for "${recipeName}".`);
-    return { error: `Item "${recipeName}" not found in the database.` };
+    throw new Error("Unexpected null item—this should never happen!");
   }
 
   // ✅ Use fetchCraftersWithScore instead of separate DB query
-  const craftersWithScore = await fetchCraftersWithScore(recipeName);
+  const craftersWithScore = await fetchCraftersWithScore(item.name);
 
   // ✅ Ensure we only process valid data
   if (!Array.isArray(craftersWithScore)) {
@@ -223,7 +259,7 @@ export async function fetchCraftersForRecipe(recipeName: string) {
   }
 
   if (!craftersWithScore.length) {
-    console.log(`❌ No crafters found for "${recipeName}".`);
+    console.log(`❌ No crafters found for "${item.name}".`);
   }
 
   // ✅ Filter out null values before mapping
@@ -239,7 +275,6 @@ export async function fetchCraftersForRecipe(recipeName: string) {
     reagents: item.reagents || [],
     crafters: validCrafters
       .map((crafter) => {
-        // ✅ Use the first profession in the array (since we no longer store recipes in `profession`)
         const relevantProfession =
           crafter.profession.length > 0 ? crafter.profession[0] : null;
 
@@ -250,12 +285,12 @@ export async function fetchCraftersForRecipe(recipeName: string) {
           profession: relevantProfession
             ? {
                 name: relevantProfession.name,
-                final_score: crafter.final_score, // ✅ Use final_score instead of skill_points
+                final_score: crafter.final_score,
               }
-            : null, // If no relevant profession is found, return null
+            : null,
         };
       })
-      .filter((crafter) => crafter.profession !== null), // Remove crafters without a valid profession
+      .filter((crafter) => crafter.profession !== null),
   };
 }
 

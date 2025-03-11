@@ -48,7 +48,7 @@ Built using **AWS CDK (TypeScript)** for infrastructure and **Node.js (TypeScrip
 
 ## Project Structure
 
-````sh
+```sh
 /cdk
 ├── bin
 │   └── tarqs-crafty-bot.ts
@@ -78,7 +78,8 @@ Built using **AWS CDK (TypeScript)** for infrastructure and **Node.js (TypeScrip
     ├── fetch_khaz_algar_recipes.mjs  # Regenerate khaz_algar_recipes.json
     └── mocks
         └── secrets-manager
-````
+```
+
 ## Deployment Guide
 
 ### 1️⃣ Prerequisites
@@ -89,7 +90,7 @@ Ensure you have the necessary dependencies installed.
 
 ```sh
 npm install -g aws-cdk
-````
+```
 
 **Ensure AWS CLI is configured:**
 
