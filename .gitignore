@@ -1,4 +1,6 @@
 **/*.js
+!tarqysCraftyBot.js
+!deploy-commands.js
 !jest.config.js
 **/*.d.ts
 **/node_modules
