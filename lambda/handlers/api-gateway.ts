@@ -60,7 +60,7 @@ export async function handleApiGateway(event: APIGatewayEvent) {
     );
     return {
       statusCode: 200,
-      body: JSON.stringify(characterData, null, 2),
+      body: JSON.stringify(characterData[0], null, 2),
       headers: { "Content-Type": "application/json" },
     };
   } else {

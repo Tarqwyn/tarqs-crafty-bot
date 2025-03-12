@@ -1,18 +1,29 @@
-import * as cdk from "aws-cdk-lib";
-import { Construct } from "constructs";
-import * as lambda from "aws-cdk-lib/aws-lambda";
-import * as ec2 from "aws-cdk-lib/aws-ec2";
-import * as docdb from "aws-cdk-lib/aws-docdb";
+import {
+  aws_ec2 as ec2,
+  aws_lambda as lambda,
+  aws_docdb as docdb,
+  Stack,
+  StackProps,
+  CfnOutput,
+  RemovalPolicy,
+  Duration
+} from "aws-cdk-lib";
+
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import { JsonSchemaType } from "aws-cdk-lib/aws-apigateway";
 
-export class TarqsCraftyBotStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+import { Construct } from "constructs";
+import * as path from "path";
+import * as fs from "fs";
+
+export class TarqsCraftyBotStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     // VPCs for the the bot and it data
     const vpc = new ec2.Vpc(this, "CraftingBotVPC", {
+      ipAddresses: ec2.IpAddresses.cidr("10.0.0.0/16"),
       maxAzs: 2,
       natGateways: 0,
       subnetConfiguration: [
@@ -49,6 +60,69 @@ export class TarqsCraftyBotStack extends cdk.Stack {
         allowAllOutbound: true,
       },
     );
+
+    const publicSg = new ec2.SecurityGroup(this, "publicSg", {
+      vpc,
+      allowAllOutbound: true,
+    });
+
+    publicSg.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(22),
+      "allow ssh access",
+    );
+    publicSg.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(80),
+      "allow http access",
+    );
+
+    publicSg.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(443),
+      "allow https access",
+    );
+    
+    const customNat = new ec2.Instance(this, `customNatInstance`, {
+      vpc,
+      securityGroup: publicSg,
+      vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
+      instanceType: ec2.InstanceType.of(
+        ec2.InstanceClass.T3,
+        ec2.InstanceSize.MICRO,
+      ),
+      machineImage: ec2.MachineImage.latestAmazonLinux2023(),
+      keyName: "natKey",
+      sourceDestCheck: false, 
+      associatePublicIpAddress: true, 
+    });
+
+    const initScriptPath = path.join(`${__dirname}/`, "init-script.sh");
+    const userData = fs.readFileSync(initScriptPath, "utf8");
+    customNat.addUserData(userData);
+
+
+    const privateSubnets = vpc.selectSubnets({
+      subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+    }).subnets as ec2.Subnet[];
+    privateSubnets[0].addRoute(`NAT-route-0`, {
+      routerId: customNat.instanceId,
+      routerType: ec2.RouterType.INSTANCE,
+      destinationCidrBlock: "0.0.0.0/0",
+    });
+    privateSubnets[1].addRoute(`NAT-route-1`, {
+      routerId: customNat.instanceId,
+      routerType: ec2.RouterType.INSTANCE,
+      destinationCidrBlock: "0.0.0.0/0",
+    });
+
+    const elasticIp = new ec2.CfnEIP(this, "ElasticIp");
+    new ec2.CfnEIPAssociation(this, "EipAssociation", {
+      eip: elasticIp.ref,
+      instanceId: customNat.instanceId,
+    });
+
+    customNat.applyRemovalPolicy(RemovalPolicy.DESTROY);
 
     // Database and Code
     const craftingDBCluster = new docdb.DatabaseCluster(
@@ -87,11 +161,9 @@ export class TarqsCraftyBotStack extends cdk.Stack {
           command: ["bash", "-c", "npm install && cp -r . /asset-output"],
         },
       }),
-      timeout: cdk.Duration.seconds(120),
+      timeout: Duration.seconds(240),
       vpc,
-      vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
       securityGroups: [lambdaSecurityGroup],
-      allowPublicSubnet: true,
       reservedConcurrentExecutions: 1,
     });
 
@@ -182,15 +254,15 @@ export class TarqsCraftyBotStack extends cdk.Stack {
     );
 
     // Outputs so other services can reference them
-    new cdk.CfnOutput(this, "ApiGatewayUrl", {
+    new CfnOutput(this, "ApiGatewayUrl", {
       value: api.url || "API Gateway deployment failed",
     });
 
-    new cdk.CfnOutput(this, "DocumentDBEndpoint", {
+    new CfnOutput(this, "DocumentDBEndpoint", {
       value: craftingDBCluster.clusterEndpoint.hostname,
     });
 
-    new cdk.CfnOutput(this, "DatabaseSecretArn", {
+    new CfnOutput(this, "DatabaseSecretArn", {
       value: craftingDBCluster.secret?.secretArn || "No secret found",
     });
   }
