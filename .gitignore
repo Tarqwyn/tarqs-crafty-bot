@@ -1,9 +1,11 @@
-*.js
+**/*.js
+!tarqysCraftyBot.js
+!deploy-commands.js
 !jest.config.js
-*.d.ts
-node_modules
-discord-bot
+**/*.d.ts
+**/node_modules
+**/.env
 
 # CDK asset staging directory
-.cdk.staging
-cdk.out
+**/.cdk.staging
+**/cdk.out
