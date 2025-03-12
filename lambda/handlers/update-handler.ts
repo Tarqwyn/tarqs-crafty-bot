@@ -2,6 +2,7 @@ import { getMongoClient } from "../services/database";
 import {
   fetchGuildRoster,
   fetchCharacterProfessions,
+  fetchCharacterMediaUrl,
 } from "../services/blizzard-api";
 import { cleanCharacterName } from "../services/utils";
 import { Collection, AnyBulkWriteOperation } from "mongodb";
@@ -66,6 +67,13 @@ export async function updateGuildMembers(
       const charRealm = member.character.realm.slug;
 
       console.log(`🔍 Fetching professions for ${charName} (${charRealm})...`);
+      const insetUrl = await fetchCharacterMediaUrl(
+        accessToken,
+        charName,
+        charRealm,
+      );
+
+      console.log(`🔍 Fetching professions for ${charName} (${charRealm})...`);
       const professions = await fetchCharacterProfessions(
         accessToken,
         charName,
@@ -84,6 +92,7 @@ export async function updateGuildMembers(
             $set: {
               character_name: charName,
               realm: charRealm,
+              media: insetUrl,
               level: member.character.level || 0,
               khaz_algar_professions: professions || [],
             },

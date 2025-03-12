@@ -93,6 +93,43 @@ export async function fetchItemMediaUrl(
   return null;
 }
 
+export async function fetchCharacterMediaUrl(
+  accessToken: string,
+  characterName: string,
+  realm: string,
+): Promise<string | null> {
+  try {
+    console.log(`🔍 Fetching media for character ${characterName}...`);
+    const response = await axios.get(
+      `https://eu.api.blizzard.com/profile/wow/character/${realm}/${characterName}/character-media`,
+      {
+        params: { namespace: "profile-eu" },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+    if (response.data?.assets && response.data.assets.length > 0) {
+      const assets: BlizzardMediaAsset[] = response.data.assets;
+      const insetUrl = assets.find((asset) => asset.key === "inset")?.value;
+
+      console.log(`✅ Found media URL: ${insetUrl}`);
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      return insetUrl || null;
+    }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(
+        `❌ Error fetching media for character ${characterName}:`,
+        error.message,
+      );
+    } else {
+      console.error("❌ Unknown fetching media", error);
+    }
+  }
+  return null;
+}
+
 export async function fetchGuildRoster(
   accessToken: string,
   guildName: string,
