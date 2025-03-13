@@ -1,4 +1,4 @@
-# Tarqwyn's Crafting Bot - AWS CDK Deployment
+# Tarqwyn's Crafting Bot
 
 ## Description
 
