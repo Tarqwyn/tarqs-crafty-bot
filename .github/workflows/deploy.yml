@@ -15,7 +15,7 @@ jobs:
           repository: Tarqwyn/tarqs-crafty-bot
           ref: main
           fetch-depth: 1
-          
+
       - name: Install and compile TypeScript locally
         run: |
           cd webserver
@@ -25,10 +25,10 @@ jobs:
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" | base64 --decode > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.LIGHTSAIL_IP }} >> ~/.ssh/known_hosts
-        
+
       - name: Copy bot files to Lightsail
         run: |
           scp -r ./discord-bot-cdk/discord-bot ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/
@@ -72,16 +72,15 @@ jobs:
           scp -r ./webserver/dist ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver-dist
           scp ./webserver/package.json ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver/
           scp ./webserver/package-lock.json ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver/
-   
+
       - name: Install dependencies for Express server on Lightsail
         run: |
           ssh ubuntu@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
           set -e  # Exit on error
-
           cd /home/ubuntu/webserver
           npm install
           EOF
-      
+
       - name: Run Express server with PM2 on Lightsail
         run: |
           ssh ubuntu@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
