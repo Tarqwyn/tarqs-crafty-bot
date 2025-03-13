@@ -25,7 +25,7 @@ jobs:
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" | base64 --decode > ~/.ssh/id_rsa
+          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" | tr -d '[:space:]' | base64 --decode > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.LIGHTSAIL_IP }} >> ~/.ssh/known_hosts
 
