@@ -9,8 +9,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository (Only Bot Directory)
-        uses: actions/checkout@v3
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+        with:
+          repository: Tarqwyn/tarqs-crafty-bot
+          ref: main
+          fetch-depth: 1
 
       - name: Setup SSH Key
         run: |
@@ -18,23 +22,37 @@ jobs:
           echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.LIGHTSAIL_IP }} >> ~/.ssh/known_hosts
+        
+      - name: Copy bot files to Lightsail
+        run: |
+          scp -r ./discord-bot ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/
 
-      - name: Deploy to Lightsail
+      - name: Deploy bot on Lightsail
         run: |
           ssh ubuntu@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
-            # Navigate to the bot directory
-            cd /home/ubuntu/discord-bot
-            
-            # Pull only the latest changes in /discord-bot-cdk/discord-bot/
-            git fetch --depth=1 origin main
-            git checkout main
-            git reset --hard origin/main
-            git pull origin main --recurse-submodules --depth=1
-            
-            # Navigate to the bot folder and install dependencies
-            cd discord-bot-cdk/discord-bot
-            npm install
+          set -e  # Exit on error
 
-            # Restart the bot using PM2
-            pm2 restart tarqsCraftyBot || pm2 start tarqsCraftyBot.js --name "tarqsCraftyBot"
+          echo "Updating system packages..."
+          sudo apt update -y
+
+          echo "Ensuring required dependencies are installed..."
+          sudo apt install -y awscli npm git
+
+          echo "Navigating to bot directory..."
+          cd /home/ubuntu/discord-bot
+
+          echo "Fetching environment variables from AWS SSM..."
+          aws ssm get-parameter --name "DiscordBotEnv" --with-decryption --query "Parameter.Value" --output text > .env
+          chmod 600 .env
+
+          echo "Installing dependencies..."
+          npm install
+
+          echo "Restarting bot with PM2..."
+          pm2 stop tarqsCraftyBot || true  # Ignore errors if bot isn't running
+          pm2 start tarqsCraftyBot.js --name tarqsCraftyBot
+          pm2 save
+          pm2 restart tarqsCraftyBot
+
+          echo "Deployment complete!"
           EOF
