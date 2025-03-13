@@ -1,0 +1,116 @@
+/* Body and Container Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-image: url('./tarqs-crafty-background.webp'); /* Path to your background image */
+  background-size: cover; /* Ensure the background image covers the full screen */
+  background-position: center; /* Center the background image */
+  background-attachment: fixed; /* Make the background stay in place when scrolling */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+  background-color: #121212; /* Dark background fallback in case image doesn't load */
+}
+
+.container {
+  max-width: 800px;
+  padding: 40px;
+  background: rgba(30, 30, 30, 0.8); /* Dark, semi-transparent background for the container */
+  border-radius: 15px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  backdrop-filter: blur(10px); /* Optional: Add a blur effect behind the container */
+}
+
+/* Header-container to center image and header */
+.header-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 2.8em;
+  color: #76ff03; /* Neon green for contrast */
+  margin-bottom: 0;
+}
+
+.header-image {
+  width: 128px; /* Display size for the image */
+  height: 128px; /* Maintain aspect ratio */
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 20px; /* Space between the image and header */
+}
+
+/* Heading Styles */
+h2 {
+  font-size: 1.6em;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+h3 {
+  font-size: 1.3em;
+  color: #FF9800; /* Warm amber for "coming soon" */
+  margin-top: 15px;
+  font-weight: 600;
+}
+
+/* Paragraph Styles */
+p {
+  font-size: 1.1em;
+  line-height: 1.6;
+  color: #bbb; /* Light grey text */
+  margin-bottom: 25px;
+}
+
+/* List Style */
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul li {
+  font-size: 1.1em;
+  margin-bottom: 15px;
+  padding-left: 25px;
+  text-align: left;
+  color: #bbb; /* Light grey text */
+}
+
+ul li:before {
+  content: "✔️";
+  padding-right: 10px;
+  color: #76ff03; /* Neon green for list items */
+}
+
+/* Coming Soon Section */
+.coming-soon {
+  background-color: #333; /* Slightly lighter dark background for the "Coming Soon" box */
+  color: #ff5722; /* A rich, contrasting orange */
+  padding: 20px;
+  border-radius: 8px;
+  font-size: 1.2em;
+  margin-top: 35px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+/* Call to Action Link */
+.cta {
+  font-size: 1.3em;
+  margin-top: 40px;
+  color: #03a9f4; /* Cool blue for CTA */
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.cta:hover {
+  color: #76ff03; /* Neon green on hover */
+  text-decoration: underline;
+}

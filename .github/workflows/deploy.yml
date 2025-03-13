@@ -29,6 +29,12 @@ jobs:
           npm install
           npx tsc  # compiles TS to JavaScript (outputs to dist/)
 
+      - name: Build React app
+        run: |
+          cd webserver/client
+          npm install
+          npm run build 
+
       - name: Copy bot files to Lightsail
         run: |
           scp -r ./discord-bot-cdk/discord-bot ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/
@@ -62,6 +68,10 @@ jobs:
 
           echo "Deployment complete!"
           EOF
+
+      - name: Copy React build to Lightsail
+        run: |
+          scp -r ./webserver/client/build ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver/dist/client
 
       - name: Copy compiled Express server files to Lightsail
         run: |
