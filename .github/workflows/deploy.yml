@@ -25,7 +25,7 @@ jobs:
         
       - name: Copy bot files to Lightsail
         run: |
-          scp -r ./discord-bot ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/
+          scp -r ./discord-bot-cdk/discord-bot ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/
 
       - name: Deploy bot on Lightsail
         run: |
