@@ -55,7 +55,7 @@ jobs:
           npm install
 
           echo "Restarting bot with PM2..."
-          pm2 stop tarqsCraftyBot || true  # Ignore errors if bot isn't running
+          pm2 stop tarqsCraftyBot || true
           pm2 start tarqsCraftyBot.js --name tarqsCraftyBot
           pm2 save
           pm2 restart tarqsCraftyBot
