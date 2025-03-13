@@ -1,6 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
 import * as lightsail from 'aws-cdk-lib/aws-lightsail';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
 const userDataScript = `
@@ -56,15 +55,7 @@ export class DiscordBotCdkStack extends cdk.Stack {
       staticIpName: 'discord-bot-ip',
     });
 
-    // IAM Role for SSM Parameter Store
-    const ssmRole = new iam.Role(this, 'SSMRole', {
-      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
-      managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMReadOnlyAccess'),
-      ],
-    });
 
-    // Output Lightsail details
     new cdk.CfnOutput(this, 'LightsailStaticIp', {
       value: staticIp.ref,
       description: 'Static IP Address for SSH & GitHub Actions Deployment',
