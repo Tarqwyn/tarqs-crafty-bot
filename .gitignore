@@ -1,5 +1,5 @@
 **/*.js
-!tarqysCraftyBot.js
+!tarqyCraftyBot.js
 !deploy-commands.js
 !jest.config.js
 **/*.d.ts

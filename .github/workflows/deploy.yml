@@ -1,0 +1,40 @@
+name: Deploy to Lightsail
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository (Only Bot Directory)
+        uses: actions/checkout@v3
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LIGHTSAIL_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.LIGHTSAIL_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Lightsail
+        run: |
+          ssh ubuntu@${{ secrets.LIGHTSAIL_HOST }} << 'EOF'
+            # Navigate to the bot directory
+            cd /home/ubuntu/discord-bot
+            
+            # Pull only the latest changes in /discord-bot-cdk/discord-bot/
+            git fetch --depth=1 origin main
+            git checkout main
+            git reset --hard origin/main
+            git pull origin main --recurse-submodules --depth=1
+            
+            # Navigate to the bot folder and install dependencies
+            cd discord-bot-cdk/discord-bot
+            npm install
+
+            # Restart the bot using PM2
+            pm2 restart tarqsCraftyBot || pm2 start tarqsCraftyBot.js --name "tarqsCraftyBot"
+          EOF
