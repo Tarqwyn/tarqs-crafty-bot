@@ -19,10 +19,16 @@ jobs:
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" | tr -d '[:space:]' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.LIGHTSAIL_IP }} >> ~/.ssh/known_hosts
-        
+          
+      - name: Install and compile TypeScript locally
+        run: |
+          cd webserver
+          npm install
+          npx tsc  # compiles TS to JavaScript (outputs to dist/)
+
       - name: Copy bot files to Lightsail
         run: |
           scp -r ./discord-bot-cdk/discord-bot ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/
@@ -31,22 +37,58 @@ jobs:
         run: |
           ssh ubuntu@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
           set -e  # Exit on error
+
           # Ensure the environment is set up properly
           source ~/.bashrc
+
           # Ensure PM2 is in the PATH
           export PATH=$PATH:/home/ubuntu/.npm-global/bin
 
           echo "Navigating to bot directory..."
           cd /home/ubuntu/discord-bot
+
           echo "Fetching environment variables from AWS SSM..."
           aws ssm get-parameter --name "DiscordBotEnv" --with-decryption --query "Parameter.Value" --output text > .env
           chmod 600 .env
+
           echo "Installing dependencies..."
           npm install
+
           echo "Restarting bot with PM2..."
           pm2 stop tarqsCraftyBot || true  # Ignore errors if bot isn't running
           pm2 start tarqsCraftyBot.js --name tarqsCraftyBot
           pm2 save
           pm2 restart tarqsCraftyBot
+
           echo "Deployment complete!"
+          EOF
+
+      - name: Copy Express server files to Lightsail
+        run: |
+          scp -r ./webserver ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/
+
+      - name: Copy compiled Express server files to Lightsail
+        run: |
+          scp -r ./webserver/dist ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver-dist
+          scp ./webserver/package.json ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver/
+          scp ./webserver/package-lock.json ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver/
+
+      - name: Install dependencies for Express server on Lightsail
+        run: |
+          ssh ubuntu@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
+          set -e  # Exit on error
+          cd /home/ubuntu/webserver
+          npm install
+          EOF
+
+      - name: Run Express server with PM2 on Lightsail
+        run: |
+          ssh ubuntu@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
+          set -e
+          export PATH=$PATH:/home/ubuntu/.npm-global/bin
+          cd /home/ubuntu/webserver
+          pm2 stop tarqsCraftyBotExpress || true
+          pm2 start dist/server.js --name "tarqsCraftyBotExpress"
+          pm2 save
+          pm2 restart tarqsCraftyBotExpress
           EOF
