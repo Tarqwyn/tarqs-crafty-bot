@@ -37,7 +37,7 @@ jobs:
 
           # Ensure PM2 is in the PATH
           export PATH=$PATH:/home/ubuntu/.npm-global/bin
-          
+
           echo "Navigating to bot directory..."
           cd /home/ubuntu/discord-bot
 
@@ -55,4 +55,32 @@ jobs:
           pm2 restart tarqsCraftyBot
 
           echo "Deployment complete!"
+          EOF
+
+      - name: Copy Express server files to Lightsail
+        run: |
+          scp -r ./webserver ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/
+
+      - name: Install dependencies for Express server on Lightsail
+        run: |
+          ssh ubuntu@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
+          set -e  # Exit on error
+
+          cd /home/ubuntu/webserver
+          npm install
+          EOF
+          
+      - name: Run Express server as a service on Lightsail
+        run: |
+          ssh ubuntu@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
+          set -e  # Exit on error
+
+          export PATH=$PATH:/home/ubuntu/.npm-global/bin
+
+          cd /home/ubuntu/webserver
+          pm2 start src/server.ts --name "tarqsCraftyBotExpress" --interpreter ts-node
+          pm2 save
+          pm2 restart tarqsCraftyBotExpress
+
+          echo "Express server deployed and running!"
           EOF
