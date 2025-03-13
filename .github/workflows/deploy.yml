@@ -32,12 +32,6 @@ jobs:
           ssh ubuntu@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
           set -e  # Exit on error
 
-          echo "Updating system packages..."
-          sudo apt update -y
-
-          echo "Ensuring required dependencies are installed..."
-          sudo apt install -y awscli npm git
-
           echo "Navigating to bot directory..."
           cd /home/ubuntu/discord-bot
 
