@@ -113,7 +113,7 @@ client.on('interactionCreate', async interaction => {
         const embed = new EmbedBuilder()
             .setColor(0x3498db)
             .setTitle('🛠 Crafting Bot Commands')
-            .setDescription('Supported professions:\nLeatherworking\nTailoring\nBlacksmithing\nAlchemy\nJewelcrafting\nInscription\nEnchanting\nUse the following slash commands:\n')
+            .setDescription('We currently only support Crafting professions.. but are considering Cooking..\nPlease report bugs to tarqwyndandy')
             .addFields(
                 { name: '`/who <recipe>`', value: 'Find out which guild members can craft a specific recipe.', inline: false },
                 { name: '`/professions <character> [realm]`', value: 'Find professions for a character with optional realm input.', inline: false },
