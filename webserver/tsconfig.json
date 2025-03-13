@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES6",                 // Target modern JavaScript
+    "module": "commonjs",            // Use CommonJS for modules
+    "strict": true,                  // Enable strict type checking
+    "esModuleInterop": true,         // Enable interop with non-ES modules
+    "skipLibCheck": true,            // Skip checking of declaration files
+    "forceConsistentCasingInFileNames": true,  // Ensure consistent file casing
+    "outDir": "./dist",              // Output folder for compiled files
+    "rootDir": "./src"               // Root folder for source TypeScript files
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}
