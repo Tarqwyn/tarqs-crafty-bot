@@ -32,6 +32,12 @@ jobs:
           ssh ubuntu@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
           set -e  # Exit on error
 
+          # Ensure the environment is set up properly
+          source ~/.bashrc
+
+          # Ensure PM2 is in the PATH
+          export PATH=$PATH:/home/ubuntu/.npm-global/bin
+          
           echo "Navigating to bot directory..."
           cd /home/ubuntu/discord-bot
 
