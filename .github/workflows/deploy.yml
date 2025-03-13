@@ -19,7 +19,7 @@ jobs:
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" | tr -d '[:space:]' > ~/.ssh/id_rsa
+          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.LIGHTSAIL_IP }} >> ~/.ssh/known_hosts
           
@@ -62,10 +62,6 @@ jobs:
 
           echo "Deployment complete!"
           EOF
-
-      - name: Copy Express server files to Lightsail
-        run: |
-          scp -r ./webserver ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/
 
       - name: Copy compiled Express server files to Lightsail
         run: |
