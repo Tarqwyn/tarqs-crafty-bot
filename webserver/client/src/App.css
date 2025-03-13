@@ -1,3 +1,20 @@
+/* Root font size for easy scaling */
+:root {
+  font-size: 16px; /* Default base size */
+}
+
+@media (max-width: 768px) {
+  :root {
+    font-size: 14px; /* Slightly smaller text on tablets */
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    font-size: 12px; /* Even smaller text on mobile */
+  }
+}
+
 /* Body and Container Styles */
 body {
   font-family: 'Poppins', sans-serif;
@@ -5,24 +22,25 @@ body {
   padding: 0;
   background-image: url('./tarqs-crafty-background.webp'); /* Path to your background image */
   background-size: cover; /* Ensure the background image covers the full screen */
-  background-position: center; /* Center the background image */
-  background-attachment: fixed; /* Make the background stay in place when scrolling */
+  background-position: center;
+  background-attachment: fixed;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   text-align: center;
-  background-color: #121212; /* Dark background fallback in case image doesn't load */
+  background-color: #121212; /* Dark background fallback */
 }
 
+/* Main content container */
 .container {
-  max-width: 800px;
-  padding: 40px;
-  background: rgba(30, 30, 30, 0.8); /* Dark, semi-transparent background for the container */
-  border-radius: 15px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  max-width: 50rem; /* Scales based on root font size */
+  padding: 2.5rem;
+  background: rgba(30, 30, 30, 0.8); /* Dark, semi-transparent background */
+  border-radius: 0.9rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.4);
   overflow: hidden;
-  backdrop-filter: blur(10px); /* Optional: Add a blur effect behind the container */
+  backdrop-filter: blur(0.6rem);
 }
 
 /* Header-container to center image and header */
@@ -30,43 +48,44 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
 }
 
+/* Header Image */
+.header-image {
+  max-width: 8rem; /* Responsive image size */
+  height: auto;
+  object-fit: cover;
+  border-radius: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Headings */
 h1 {
-  font-size: 2.8em;
+  font-size: 2.5rem;
   color: #76ff03; /* Neon green for contrast */
   margin-bottom: 0;
 }
 
-.header-image {
-  width: 128px; /* Display size for the image */
-  height: 128px; /* Maintain aspect ratio */
-  object-fit: cover;
-  border-radius: 10px;
-  margin-bottom: 20px; /* Space between the image and header */
-}
-
-/* Heading Styles */
 h2 {
-  font-size: 1.6em;
+  font-size: 1.8rem;
   color: #fff;
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
 }
 
 h3 {
-  font-size: 1.3em;
+  font-size: 1.5rem;
   color: #FF9800; /* Warm amber for "coming soon" */
-  margin-top: 15px;
+  margin-top: 1rem;
   font-weight: 600;
 }
 
 /* Paragraph Styles */
 p {
-  font-size: 1.1em;
+  font-size: 1.1rem;
   line-height: 1.6;
   color: #bbb; /* Light grey text */
-  margin-bottom: 25px;
+  margin-bottom: 1.5rem;
 }
 
 /* List Style */
@@ -76,41 +95,87 @@ ul {
 }
 
 ul li {
-  font-size: 1.1em;
-  margin-bottom: 15px;
-  padding-left: 25px;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
   text-align: left;
   color: #bbb; /* Light grey text */
 }
 
 ul li:before {
   content: "✔️";
-  padding-right: 10px;
+  padding-right: 0.6rem;
   color: #76ff03; /* Neon green for list items */
 }
 
 /* Coming Soon Section */
 .coming-soon {
-  background-color: #333; /* Slightly lighter dark background for the "Coming Soon" box */
-  color: #ff5722; /* A rich, contrasting orange */
-  padding: 20px;
-  border-radius: 8px;
-  font-size: 1.2em;
-  margin-top: 35px;
+  background-color: #333;
+  color: #ff5722;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 1.2rem;
+  margin-top: 2rem;
   font-weight: 500;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
 }
 
 /* Call to Action Link */
 .cta {
-  font-size: 1.3em;
-  margin-top: 40px;
-  color: #03a9f4; /* Cool blue for CTA */
+  font-size: 1.3rem;
+  margin-top: 2.5rem;
+  color: #03a9f4;
   text-decoration: none;
   transition: color 0.3s;
 }
 
 .cta:hover {
-  color: #76ff03; /* Neon green on hover */
+  color: #76ff03;
   text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    max-width: 90%;
+    padding: 2rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .header-image {
+    max-width: 6rem;
+  }
+
+  .cta {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+  }
+
+  .header-image {
+    max-width: 5rem;
+  }
+
+  .container {
+    padding: 1.5rem;
+  }
+
+  .cta {
+    font-size: 1rem;
+  }
 }
