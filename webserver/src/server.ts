@@ -5,7 +5,7 @@ const app = express();
 const port = 3000;
 
 // Serve static files from the React app's build folder (inside webserver/client)
-app.use(express.static(path.join(__dirname, '../dist/client')));
+app.use(express.static(path.join(__dirname, '../dist/client/build')));
 
 // API endpoint example
 app.get('/api/status', (req, res) => {
