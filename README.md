@@ -17,7 +17,6 @@ That’s where this API and Discord bot come in. It bridges the gap between Worl
 - 🔔 Notify the crafter via Discord so they know an order is incoming
 
 I originally built this for my own guild, but if you’ve got AWS access and a Blizzard developer key, feel free to fork, use, and tweak it however you like!  
-The Discord bot code will also be released soon, making it even easier to integrate.
 
 ---
 
@@ -42,6 +41,7 @@ Built using **AWS CDK (TypeScript)** for infrastructure and **Node.js (TypeScrip
 - **AWS DocumentDB**: Stores guild members, professions & crafting recipes.
 - **AWS API Gateway**: Public API for fetching character & recipe data.
 - **AWS Secrets Manager**: Stores Blizzard API credentials securely.
+- **AWS Lightsail**: Runs the actual bot and is deployed via Github Actions
 - **Blizzard API Integration**: Fetches real-time WoW profession data.
 
 ---
@@ -52,8 +52,13 @@ Built using **AWS CDK (TypeScript)** for infrastructure and **Node.js (TypeScrip
 /cdk
 ├── bin
 │   └── tarqs-crafty-bot.ts
+├── discord-bot-cdk
+│   ├── lib
+│   │   └── discord-bot-cdk-stack.ts # Set up lightsail and Elastic IP 
+│   ├── discord-bot
+│   │   └── tarqsCraftyBot.js        # The actual bot
 ├── lambda
-│   ├── bot.ts                   # Entrypoint
+│   ├── bot.ts                       # Entrypoint for the backend
 │   ├── handlers
 │   │   ├── api-gateway.ts
 │   │   ├── api-handlers.ts
@@ -71,7 +76,7 @@ Built using **AWS CDK (TypeScript)** for infrastructure and **Node.js (TypeScrip
 │   └── types
 │       └── types.ts
 ├── lib
-│   └── tarqs-crafty-bot-stack.ts  # Main stack
+│   └── tarqs-crafty-bot-stack.ts     # Main stack
 ├── test
 │   └── tarqs-crafty-bot.test.ts
 └── utils
@@ -233,7 +238,6 @@ make realm CHARACTER=tarqwyn REALM=azjolnerub
 
 🚀 Planned improvements:
 
-- **Discord Bot**: Deployable bot configuration.
 - **Performance**: Enable API Gateway caching.
 - **Multi-Guild Support**: Consider shared subscription model.
 

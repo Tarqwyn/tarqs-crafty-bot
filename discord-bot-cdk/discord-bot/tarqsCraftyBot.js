@@ -63,7 +63,6 @@ async function listProfessionData(data, interaction, page = 1) {
     await interaction.editReply({ embeds: [embed], components: row.components.length > 0 ? [row] : [] });
 }
 
-
 async function handleButtonInteraction(interaction) {
     if (!interaction.isButton()) return;
     const [action, name, realm, page] = interaction.customId.split("_"); // Extract name & realm from button ID
@@ -103,7 +102,6 @@ client.once('ready', () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
 });
 
-
 client.on('interactionCreate', async interaction => {
     if (interaction.isButton()) {
         await handleButtonInteraction(interaction);
@@ -121,7 +119,7 @@ client.on('interactionCreate', async interaction => {
                 { name: '`/professions <character> [realm]`', value: 'Find professions for a character with optional realm input.', inline: false },
                 { name: '`/crafthelp`', value: 'Show this help menu.', inline: false }
             )
-            .setFooter({ text: 'Happy crafting! 🛠', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+            .setFooter({ text: "Happy crafting with Tarq's Crafty Bot" });
 
         return interaction.reply({ embeds: [embed] });
     }
