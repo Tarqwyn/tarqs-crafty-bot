@@ -65,7 +65,7 @@ jobs:
 
       - name: Copy compiled Express server files to Lightsail
         run: |
-          scp -r ./webserver/dist ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver-dist
+          scp -r ./webserver/dist ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver/dist
           scp ./webserver/package.json ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver/
           scp ./webserver/package-lock.json ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver/
 
