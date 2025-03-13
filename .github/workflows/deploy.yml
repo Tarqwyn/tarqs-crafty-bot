@@ -35,7 +35,7 @@ jobs:
           source ~/.bashrc
           # Ensure PM2 is in the PATH
           export PATH=$PATH:/home/ubuntu/.npm-global/bin
-          
+
           echo "Navigating to bot directory..."
           cd /home/ubuntu/discord-bot
           echo "Fetching environment variables from AWS SSM..."
