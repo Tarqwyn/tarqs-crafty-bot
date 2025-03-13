@@ -15,6 +15,11 @@ jobs:
           repository: Tarqwyn/tarqs-crafty-bot
           ref: main
           fetch-depth: 1
+      - name: Install and compile TypeScript locally
+        run: |
+          cd webserver
+          npm install
+          npx tsc  # compiles TS to JavaScript (outputs to dist/)
 
       - name: Setup SSH Key
         run: |
@@ -61,6 +66,12 @@ jobs:
         run: |
           scp -r ./webserver ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/
 
+      - name: Copy compiled Express server files to Lightsail
+        run: |
+          scp -r ./webserver/dist ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver-dist
+          scp ./webserver/package.json ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver/
+          scp ./webserver/package-lock.json ubuntu@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/webserver/
+   
       - name: Install dependencies for Express server on Lightsail
         run: |
           ssh ubuntu@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
@@ -70,32 +81,14 @@ jobs:
           npm install
           EOF
       
-      - name: Compile TypeScript to JavaScript
+      - name: Run Express server with PM2 on Lightsail
         run: |
           ssh ubuntu@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
-          set -e  # Exit on error
-
-          # Navigate to the Express server directory
-          cd /home/ubuntu/webserver
-
-          # Compile TypeScript to JavaScript
-          npx tsc
-          EOF
-
-      - name: Run Express server as a service on Lightsail
-        run: |
-          ssh ubuntu@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
-          set -e  # Exit on error
-
+          set -e
           export PATH=$PATH:/home/ubuntu/.npm-global/bin
-
-          # Navigate to the compiled JavaScript folder
-          cd /home/ubuntu/webserver/dist
-
-          # Start the Express server with PM2
-          pm2 start server.js --name "tarqsCraftyBotExpress"
+          cd /home/ubuntu/webserver
+          pm2 stop tarqsCraftyBotExpress || true
+          pm2 start dist/server.js --name "tarqsCraftyBotExpress"
           pm2 save
           pm2 restart tarqsCraftyBotExpress
-
-          echo "Express server deployed and running!"
           EOF
