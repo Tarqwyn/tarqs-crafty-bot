@@ -13,8 +13,8 @@ That’s where this API and Discord bot come in. It bridges the gap between Worl
 
 - 🛠️ Find out who in your guild can craft what you need
 - 🔍 See what reagents are required, including quality tiers
-- ✅ Ensure your order will succeed with the right materials
-- 🔔 Notify the crafter via Discord so they know an order is incoming
+- ✅ Ensure your order will succeed with the right materials - TCP (I need to describe these)
+- 🔔 Notify the crafter via Discord so they know an order is incoming - TODO
 
 I originally built this for my own guild, but if you’ve got AWS access and a Blizzard developer key, feel free to fork, use, and tweak it however you like!  
 
