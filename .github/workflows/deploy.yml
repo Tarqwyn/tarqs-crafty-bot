@@ -15,6 +15,7 @@ jobs:
           repository: Tarqwyn/tarqs-crafty-bot
           ref: main
           fetch-depth: 1
+          
       - name: Install and compile TypeScript locally
         run: |
           cd webserver
