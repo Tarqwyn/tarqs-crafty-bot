@@ -1,14 +1,15 @@
 require('dotenv').config();
 const { REST, Routes, SlashCommandBuilder } = require('discord.js');
 
-const CLIENT_ID = process.env.CLIENT_ID_TEST;
-const DISCORD_TOKEN = process.env.DISCORD_TOKEN_TEST;
+const CLIENT_ID = process.env.CLIENT_ID;
+const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 
 if (!CLIENT_ID || !DISCORD_TOKEN) {
     console.error("❌ Error: CLIENT_ID or DISCORD_TOKEN is missing in .env file.");
     process.exit(1);
 }
 
+// Define the commands
 const commands = [
     new SlashCommandBuilder()
         .setName('who')
@@ -43,10 +44,11 @@ const rest = new REST({ version: '10' }).setToken(DISCORD_TOKEN);
 
 (async () => {
     try {
-        console.log('🔄 Registering slash commands...');
+        console.log('🔄 Registering global slash commands...');
         await rest.put(Routes.applicationCommands(CLIENT_ID), { body: commands });
-        console.log('✅ Slash commands registered!');
+        console.log('✅ Global slash commands registered successfully!');
     } catch (error) {
-        console.error("❌ Failed to register commands:", error);
+        console.error("❌ Failed to register global commands:", error);
+        process.exit(1);
     }
 })();

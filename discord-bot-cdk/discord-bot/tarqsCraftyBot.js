@@ -301,25 +301,25 @@ client.on('interactionCreate', async interaction => {
                 return interaction.editReply(`❌ No crafters found for **${data.recipe}**.`);
             }
     
-            const recipeData = data.crafters;
+            // const recipeData = data.crafters;
     
-            // Sort crafters by highest final_score
-            recipeData.crafters.sort((a, b) => b.profession.final_score - a.profession.final_score);
-            // Extract top crafter separately
-            const topCrafter = recipeData.crafters[0];
-            const otherCrafters = recipeData.crafters.slice(1, 10); // **Limit to Top 10**
+            // // Sort crafters by highest final_score
+            // recipeData.crafters.sort((a, b) => b.profession.final_score - a.profession.final_score);
+            // // Extract top crafter separately
+            // const topCrafter = recipeData.crafters[0];
+            // const otherCrafters = recipeData.crafters.slice(1, 10); // **Limit to Top 10**
     
             // Format required reagents list (truncate if needed)
-            const reagentList = recipeData.reagents.reagents
-                .map(r => `• ${r.name} x${r.quantity}`)
-                .slice(0, 10) // **Limit reagents to prevent overflow**
-                .join("\n") || "None";
+            // const reagentList = recipeData.reagents.reagents
+            //     .map(r => `• ${r.name} x${r.quantity}`)
+            //     .slice(0, 10) // **Limit reagents to prevent overflow**
+            //     .join("\n") || "None";
     
             // Format optional reagents list (truncate if needed)
-            const optionalReagentList = recipeData.reagents.optionalReagents
-                .map(r => `• ${r.name} x${r.quantity}`)
-                .slice(0, 5) // **Limit optional reagents**
-                .join("\n") || "None";
+            // const optionalReagentList = recipeData.reagents.optionalReagents
+            //     .map(r => `• ${r.name} x${r.quantity}`)
+            //     .slice(0, 5) // **Limit optional reagents**
+            //     .join("\n") || "None";
     
 
             const embedRequiredReagents = { name: "Required Reagents", value: reagentList, inline: false }

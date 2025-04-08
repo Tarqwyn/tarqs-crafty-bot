@@ -47,7 +47,7 @@ interface CustomLambdaEvent {
   action?: ActionType;
 }
 
-type LambdaEvent = APIGatewayEvent | CustomLambdaEvent;
+export type LambdaEvent = APIGatewayEvent | CustomLambdaEvent;
 
 function isApiGatewayEvent(event: LambdaEvent): event is APIGatewayEvent {
   return "requestContext" in event && "httpMethod" in event;

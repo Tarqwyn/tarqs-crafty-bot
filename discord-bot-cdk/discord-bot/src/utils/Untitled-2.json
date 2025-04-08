@@ -1,0 +1,29 @@
+{
+  "type": "group",
+  "model": {
+    "intentType": "overview",
+    "blocks": [
+      {
+        "type": "subheadline",
+        "model": {
+          "blocks": [ "/* text block */" ]
+        }
+      },
+      {
+        "type": "text",
+        "model": {
+          "blocks": [ "/* paragraph block */" ]
+        }
+      },
+      {
+        "type": "unorderedList",
+        "model": {
+          "blocks": [
+            { "type": "listItem", "model": { "blocks": [ "/* paragraph */" ] } },
+            { "type": "listItem", "model": { "blocks": [ "/* paragraph */" ] } }
+          ]
+        }
+      }
+    ]
+  }
+}

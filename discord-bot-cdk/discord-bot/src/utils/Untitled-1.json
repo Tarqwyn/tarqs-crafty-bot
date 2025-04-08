@@ -1,0 +1,37 @@
+{
+  "recipe": "TestRecipe",
+  "crafters": {
+    "name": "TestRecipe",
+    "mediaUrl": "TestMedia",
+    "reagents": {
+      "reagents": [
+        {
+          "name": "TestReagent1",
+          "quantity": 1
+        }
+      ],
+      "optionalReagents": [
+        {
+          "name": "TestReagent2",
+          "quantity": 1
+        }
+      ]
+    },
+    "crafters": [
+      {
+        "character_name": "TestCharacter",
+        "realm": "TestCharacter#TestRealm",
+        "profession": {
+          "final_score": 100
+        }
+      },
+      {
+        "character_name": "TestCharacter2",
+        "realm": "TestCharacter2#TestRealm2",
+        "profession": {
+          "final_score": 100
+        }
+      }
+    ]
+  }
+}

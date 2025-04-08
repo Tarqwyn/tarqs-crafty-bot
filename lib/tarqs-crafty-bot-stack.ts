@@ -92,7 +92,7 @@ export class TarqsCraftyBotStack extends Stack {
         ec2.InstanceSize.MICRO,
       ),
       machineImage: ec2.MachineImage.latestAmazonLinux2023(),
-      keyName: "natKey",
+      keyName: "natKey", 
       sourceDestCheck: false, 
       associatePublicIpAddress: true, 
     });
@@ -118,7 +118,7 @@ export class TarqsCraftyBotStack extends Stack {
 
     const elasticIp = new ec2.CfnEIP(this, "ElasticIp");
     new ec2.CfnEIPAssociation(this, "EipAssociation", {
-      eip: elasticIp.ref,
+      allocationId: elasticIp.attrAllocationId,
       instanceId: customNat.instanceId,
     });
 
@@ -199,6 +199,12 @@ export class TarqsCraftyBotStack extends Stack {
       },
     });
 
+    const requestValidator = new apigateway.RequestValidator(this, 'RequestValidator', {
+      restApi: api,
+      validateRequestBody: false,
+      validateRequestParameters: true,
+    });
+
     const professionsResource = api.root.addResource("professions");
     const nameResource = professionsResource.addResource("{name}");
     const realmResource = nameResource.addResource("{realm}");
@@ -207,27 +213,18 @@ export class TarqsCraftyBotStack extends Stack {
 
     //Routes
     realmResource.addMethod("GET", lambdaIntegration, {
+      requestValidator: requestValidator, 
       requestModels: {
         "application/json": requestModel,
-      },
-      requestValidatorOptions: {
-        validateRequestBody: false,
-        validateRequestParameters: true,
       },
     });
 
     nameResource.addMethod("GET", lambdaIntegration, {
-      requestValidatorOptions: {
-        validateRequestBody: false,
-        validateRequestParameters: true,
-      },
+      requestValidator: requestValidator,  
     });
-
+    
     recipeResource.addMethod("GET", lambdaIntegration, {
-      requestValidatorOptions: {
-        validateRequestBody: false,
-        validateRequestParameters: true,
-      },
+      requestValidator: requestValidator, 
     });
 
     // Where we might keep our Blizzard API credentials - It must already exist

@@ -1,0 +1,5 @@
+"Type","Description","Example","Visual Metaphor"
+"🟩 Fundamental","Must render everywhere; can stand alone","Text, Image, Audio","🧱 Solid building block"
+"◼️ Void","No child blocks allowed","rawImage, social.rendition","🌿 Leaf node"
+"🟦 Independent","Can exist standalone, often contain child blocks","Paragraph, Headline","📦 Self-contained module"
+"🟨 Dependent","Only meaningful within a parent block","Caption, AltText, Fragment","🔌 Lego plug-in"
